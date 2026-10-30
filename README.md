@@ -75,19 +75,23 @@ DoAn/
 │   └── 07_DE_CUONG_BAO_CAO_50_TRANG.md  # Đề cương báo cáo Word 50-60 trang & Bộ câu hỏi vấn đáp
 │
 ├── docker-compose.yml                   # Khởi chạy cụm Neo4j + MongoDB
-└── TONG_QUAN_DE_TAI.md                  # Bản đồ tổng quan dự án (Master Index)
+├── TONG_QUAN_DE_TAI.md                  # Bản đồ tổng quan dự án (Master Index)
+└── MO_TA_FULL_DO_AN.md                  # BÁO CÁO TOÀN DIỆN ĐỒ ÁN ĐẦY ĐỦ 10 ĐIỂM (BẢN CHÍNH THỨC)
 ```
 
 ---
 
 ## 🚀 HƯỚNG DẪN KHỞI CHẠY ỨNG DỤNG
 
-### 1. Khởi động Cơ sở Dữ liệu
-- **MongoDB:** Mặc định đang chạy tại cổng `27017` trên máy.
-- **Neo4j:** Khởi động qua Docker:
-  ```bash
-  docker compose up -d
-  ```
+### ⚡ Cách 1: Khởi chạy 1-Click (Khuyên dùng)
+Bạn chỉ cần **nhấp đúp chuột vào file `run.bat`** tại thư mục gốc của dự án:
+- File script sẽ tự động kiểm tra Docker Containers (`social_mongodb` và `social_neo4j`), tự khởi động nếu chưa chạy.
+- Tự động mở 2 cửa sổ chạy **Backend Server** (Port 5000) và **Frontend Vite** (Port 5173).
+- Tự động mở trình duyệt web đến địa chỉ: **`http://localhost:5173`**.
+- Cung cấp Menu tương tác để nạp lại dữ liệu mẫu (`npm run seed`) hoặc dừng container bất kỳ lúc nào.
+
+### 🛠️ Cách 2: Khởi chạy thủ công từng phần
+#### 1. Khởi động Cơ sở Dữ liệu (Docker)
   *(Truy cập Neo4j Browser tại http://localhost:7474 với username: `neo4j`, password: `password123`)*
 
 ### 2. Khởi động Backend Server

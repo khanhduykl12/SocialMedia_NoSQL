@@ -59,7 +59,7 @@ export const CreatePostModal: React.FC<Props> = ({ currentUser, onSubmit, isDark
               type="text"
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="What's Happening?"
+              placeholder={currentUser ? `${currentUser.profile.fullName.split(" ").slice(-1)[0]} ơi, bạn đang nghĩ gì thế?` : "Bạn đang nghĩ gì thế?"}
               className="bg-transparent text-sm w-full focus:outline-none placeholder:text-[#7C6E5F] dark:placeholder:text-[#A89D8E] font-medium text-[#1C1713] dark:text-[#FAF7F2]"
             />
             <Smile className="w-5 h-5 text-[#7C6E5F] dark:text-[#A89D8E] shrink-0 cursor-pointer hover:text-[#786450]" />

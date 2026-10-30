@@ -89,15 +89,15 @@ export const SocialGraphExplorer: React.FC<Props> = ({
         <div className="flex items-center space-x-2">
           <NetworkIcon className="w-5 h-5 text-[#82725D]" />
           <div>
-            <h3 className="font-bold text-sm text-[#2D261E]">Mạng lưới Đồ thị Xã hội (Neo4j)</h3>
-            <p className="text-[11px] text-[#9C9082]">Trực quan hóa các liên kết bạn bè và hội nhóm</p>
+            <h3 className="font-bold text-sm text-[#2D261E]">Sơ đồ liên kết bạn bè</h3>
+            <p className="text-[11px] text-[#9C9082]">Trực quan hóa mạng lưới kết nối giữa các thành viên và câu lạc bộ</p>
           </div>
         </div>
 
         <button
           onClick={onRefresh}
-          className="p-1.5 rounded-full bg-[#FAF7F2] hover:bg-[#EFE9DF] text-[#6B5E4F] border border-[#EFE9DF] transition"
-          title="Làm mới đồ thị"
+          className="p-1.5 rounded-full bg-[#FAF7F2] hover:bg-[#EFE9DF] text-[#6B5E4F] border border-[#EFE9DF] transition cursor-pointer"
+          title="Làm mới sơ đồ"
         >
           <RefreshCw className="w-3.5 h-3.5 text-[#82725D]" />
         </button>
@@ -106,7 +106,7 @@ export const SocialGraphExplorer: React.FC<Props> = ({
       <div className="relative w-full h-[500px] bg-[#FAF7F2] rounded-xl overflow-hidden border border-[#EFE9DF]">
         {isLoading ? (
           <div className="absolute inset-0 flex items-center justify-center text-xs text-[#9C9082]">
-            Đang tải dữ liệu đồ thị...
+            Đang tải dữ liệu sơ đồ...
           </div>
         ) : (
           <div ref={containerRef} className="w-full h-full" />
@@ -116,11 +116,11 @@ export const SocialGraphExplorer: React.FC<Props> = ({
         <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm p-2.5 rounded-xl border border-[#EFE9DF] text-[11px] space-y-1 z-10 shadow-xs">
           <div className="flex items-center space-x-2">
             <span className="w-2.5 h-2.5 rounded-full bg-[#82725D] inline-block" />
-            <span className="text-[#3C342C]">Người dùng (:User)</span>
+            <span className="text-[#3C342C]">Bạn bè / Thành viên</span>
           </div>
           <div className="flex items-center space-x-2">
             <span className="w-2.5 h-2.5 rounded-sm bg-[#C7923E] inline-block" />
-            <span className="text-[#3C342C]">Câu lạc bộ (:Group)</span>
+            <span className="text-[#3C342C]">Câu lạc bộ sinh viên</span>
           </div>
         </div>
 
@@ -131,7 +131,7 @@ export const SocialGraphExplorer: React.FC<Props> = ({
               <Info className="w-3.5 h-3.5" />
               <span>{selectedNode.label}</span>
             </div>
-            <p className="text-[#9C9082] text-[10px]">Loại: {selectedNode.group === "community" ? "Hội nhóm" : "Người dùng"}</p>
+            <p className="text-[#9C9082] text-[10px]">Phân loại: {selectedNode.group === "community" ? "Câu lạc bộ" : "Thành viên"}</p>
             {selectedNode.city && <p className="text-[#9C9082] text-[10px]">Khu vực: {selectedNode.city}</p>}
           </div>
         )}

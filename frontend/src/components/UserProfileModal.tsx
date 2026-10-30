@@ -8,6 +8,7 @@ interface Props {
   onClose: () => void;
   onStartChat: (user: any) => void;
   onAddFriend: (userId: string) => void;
+  onRemoveFriend?: (userId: string) => void;
   isFriend: boolean;
   onViewGraph: () => void;
   isDark: boolean;
@@ -18,6 +19,7 @@ export const UserProfileModal: React.FC<Props> = ({
   onClose,
   onStartChat,
   onAddFriend,
+  onRemoveFriend,
   isFriend,
   onViewGraph,
   isDark
@@ -119,17 +121,24 @@ export const UserProfileModal: React.FC<Props> = ({
               </button>
 
               <button
-                onClick={() => onAddFriend(user._id)}
+                onClick={() => {
+                  if (isFriend && onRemoveFriend) {
+                    onRemoveFriend(user._id);
+                  } else {
+                    onAddFriend(user._id);
+                  }
+                }}
                 className={`flex-1 sm:flex-initial flex items-center justify-center space-x-1.5 px-4 py-2 rounded-full text-xs font-bold transition border cursor-pointer ${
                   isFriend
-                    ? "bg-[#786450]/15 text-[#786450] dark:text-[#E5B574] border-[#786450]/30"
+                    ? "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30 hover:bg-rose-500/20"
                     : "bg-[#FAF7F2] dark:bg-[#1A1714] border-[#E5DCD0] dark:border-[#383127] text-[#1C1713] dark:text-white hover:bg-[#EAE2D5]"
                 }`}
+                title={isFriend ? "Hủy kết bạn" : "Gửi lời mời kết bạn"}
               >
                 {isFriend ? (
                   <>
                     <Check className="w-4 h-4" />
-                    <span>Đã gửi / Bạn bè</span>
+                    <span>Bạn bè</span>
                   </>
                 ) : (
                   <>
@@ -145,7 +154,7 @@ export const UserProfileModal: React.FC<Props> = ({
                   onClose();
                 }}
                 className="p-2 rounded-full border border-[#E5DCD0] dark:border-[#383127] hover:bg-[#786450]/10 text-[#786450] dark:text-[#E5B574] transition cursor-pointer"
-                title="Xem trên đồ thị Neo4j"
+                title="Xem trên sơ đồ mạng lưới bạn bè"
               >
                 <Network className="w-4 h-4" />
               </button>
@@ -226,7 +235,7 @@ export const UserProfileModal: React.FC<Props> = ({
                 : "text-[#5A4D3E] dark:text-[#C5B8A8]"
             }`}
           >
-            Đồ thị quan hệ Neo4j
+            Mối quan hệ bạn bè
           </button>
         </div>
 
@@ -263,10 +272,10 @@ export const UserProfileModal: React.FC<Props> = ({
             <div className="space-y-3 text-xs">
               <div className={`p-4 rounded-2xl border ${isDark ? "bg-[#1A1714] border-[#383127]" : "bg-[#FAF7F2] border-[#E5DCD0]"}`}>
                 <h4 className="font-bold text-[#786450] dark:text-[#E5B574] mb-1">
-                  🌐 Thuật toán đồ thị gợi ý
+                  🌐 Kết nối mạng xã hội
                 </h4>
                 <p className="text-[#3D3126] dark:text-[#E2DAD0] leading-relaxed">
-                  Người dùng này được tính toán trong đồ thị Neo4j dựa trên quan hệ bạn chung (FoAF), hội nhóm (CLB HUIT) và chỉ số tương đồng Jaccard.
+                  Người bạn này được gợi ý dựa trên bạn chung, cùng câu lạc bộ tại trường HUIT và những sở thích tương đồng.
                 </p>
                 <button
                   onClick={() => {
@@ -275,7 +284,7 @@ export const UserProfileModal: React.FC<Props> = ({
                   }}
                   className="mt-3 px-4 py-1.5 rounded-full bg-[#786450] text-white font-bold text-xs hover:bg-[#655341] transition cursor-pointer"
                 >
-                  Mở Trình Khám Phá Đồ Thị Neo4j
+                  Xem sơ đồ liên kết bạn bè
                 </button>
               </div>
             </div>

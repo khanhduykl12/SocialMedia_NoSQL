@@ -12,6 +12,8 @@ import { StoryModal } from "./components/StoryModal";
 import { DegreesOfSeparation } from "./components/DegreesOfSeparation";
 import { ChatBox } from "./components/ChatBox";
 import { UserProfileModal } from "./components/UserProfileModal";
+import { CreateStoryModal } from "./components/CreateStoryModal";
+import { AccountSwitcherModal } from "./components/AccountSwitcherModal";
 import { apiService } from "./services/api";
 import { User, Post, StoryGroup, Reel, FriendRecommendation, GraphNode, GraphEdge } from "./types";
 
@@ -34,6 +36,8 @@ export function App() {
 
   // UI Modals & Floating Chat
   const [activeStoryGroup, setActiveStoryGroup] = useState<StoryGroup | null>(null);
+  const [showCreateStoryModal, setShowCreateStoryModal] = useState(false);
+  const [showAccountSwitcher, setShowAccountSwitcher] = useState(false);
   const [showDegreesModal, setShowDegreesModal] = useState(false);
   const [chatFriend, setChatFriend] = useState<any | null>(null);
   const [viewingProfileId, setViewingProfileId] = useState<string | null>(null);
@@ -157,8 +161,75 @@ export function App() {
     }
   };
 
-  const handleAddFriend = (id: string) => {
+  const handleDeletePost = async (postId: string) => {
+    try {
+      await apiService.deletePost(postId);
+      setPosts((prev) => prev.filter((p) => p._id !== postId));
+    } catch (error) {
+      console.error("Lỗi xóa bài viết", error);
+      alert("Không thể xóa bài viết này.");
+    }
+  };
+
+  const handleSelectUser = async (user: User) => {
+    localStorage.setItem("active_user_id", user._id);
+    setCurrentUser(user);
+    if (user.role !== "admin" && activeTab === "admin") {
+      setActiveTab("feed");
+    }
+    try {
+      const [recs, frs] = await Promise.all([
+        apiService.getRecommendations(recMode).catch(() => []),
+        apiService.getFriends().catch(() => [])
+      ]);
+      setRecommendations(recs);
+      setFriends(frs);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleAddFriend = async (id: string) => {
     setAddedFriends((prev) => (prev.includes(id) ? prev : [...prev, id]));
+    try {
+      await apiService.addFriend(id);
+      const [updatedFriends, updatedGraph] = await Promise.all([
+        apiService.getFriends().catch(() => null),
+        apiService.getGraphNetwork().catch(() => null)
+      ]);
+      if (updatedFriends) setFriends(updatedFriends);
+      if (updatedGraph) setGraphData(updatedGraph);
+    } catch (error) {
+      console.error("Lỗi khi thêm bạn bè lên server Neo4j", error);
+    }
+  };
+
+  const handleRemoveFriend = async (id: string) => {
+    setFriends((prev) => prev.filter((f) => f.id !== id));
+    setAddedFriends((prev) => prev.filter((item) => item !== id));
+    try {
+      await apiService.removeFriend(id);
+      const [updatedFriends, updatedGraph, updatedRecs] = await Promise.all([
+        apiService.getFriends().catch(() => null),
+        apiService.getGraphNetwork().catch(() => null),
+        apiService.getRecommendations(recMode).catch(() => null)
+      ]);
+      if (updatedFriends) setFriends(updatedFriends);
+      if (updatedGraph) setGraphData(updatedGraph);
+      if (updatedRecs) setRecommendations(updatedRecs);
+    } catch (error) {
+      console.error("Lỗi khi hủy kết bạn trên server Neo4j", error);
+    }
+  };
+
+  const handleCreateStory = async (mediaUrl: string, caption?: string) => {
+    try {
+      await apiService.createStory({ mediaUrl, caption });
+      const updatedStories = await apiService.getStories();
+      setStories(updatedStories);
+    } catch (error) {
+      console.error("Lỗi tạo story mới", error);
+    }
   };
 
   return (
@@ -169,6 +240,7 @@ export function App() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onOpenChat={() => setChatFriend(friends[0] || { id: "usr_102", fullName: "Trần Thị Bình" })}
+        onOpenAccountSwitcher={() => setShowAccountSwitcher(true)}
         isDark={isDark}
         setIsDark={setIsDark}
       />
@@ -181,6 +253,7 @@ export function App() {
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           onOpenDegrees={() => setShowDegreesModal(true)}
+          onOpenAccountSwitcher={() => setShowAccountSwitcher(true)}
           isDark={isDark}
         />
 
@@ -192,8 +265,10 @@ export function App() {
               posts={posts}
               stories={stories}
               onLikePost={handleLikePost}
+              onDeletePost={handleDeletePost}
               onCreatePost={handleCreatePost}
               onOpenStory={(group) => setActiveStoryGroup(group)}
+              onCreateStory={() => setShowCreateStoryModal(true)}
               onViewProfile={(id) => setViewingProfileId(id)}
               isDark={isDark}
             />
@@ -225,6 +300,8 @@ export function App() {
               setRecMode={setRecMode}
               isLoading={loadingRecs}
               onAddFriend={handleAddFriend}
+              onRemoveFriend={handleRemoveFriend}
+              onStartChat={(f) => setChatFriend(f)}
               addedFriends={addedFriends}
               onViewProfile={(id) => setViewingProfileId(id)}
               isDark={isDark}
@@ -245,7 +322,13 @@ export function App() {
 
           {activeTab === "admin" && (
             <div className="w-full max-w-5xl py-4 px-2">
-              <AdminPage />
+              <AdminPage 
+                currentUser={currentUser} 
+                onSwitchToAdmin={() => {
+                  const admin = allUsers.find((u) => u.role === "admin");
+                  if (admin) handleSelectUser(admin);
+                }} 
+              />
             </div>
           )}
         </main>
@@ -260,6 +343,7 @@ export function App() {
           onViewProfile={(id) => setViewingProfileId(id)}
           stories={stories}
           onOpenStory={(group) => setActiveStoryGroup(group)}
+          onNavigateToFriends={() => setActiveTab("friends")}
           isDark={isDark}
         />
       </div>
@@ -274,6 +358,7 @@ export function App() {
             setActiveTab("messages");
           }}
           onAddFriend={handleAddFriend}
+          onRemoveFriend={handleRemoveFriend}
           isFriend={friends.some((f) => f.id === viewingProfileId) || addedFriends.includes(viewingProfileId)}
           onViewGraph={() => setActiveTab("graph")}
           isDark={isDark}
@@ -293,7 +378,19 @@ export function App() {
       {activeStoryGroup && (
         <StoryModal
           group={activeStoryGroup}
+          allGroups={stories}
+          onSelectGroup={(g) => setActiveStoryGroup(g)}
           onClose={() => setActiveStoryGroup(null)}
+        />
+      )}
+
+      {/* Create Story Modal */}
+      {showCreateStoryModal && (
+        <CreateStoryModal
+          currentUser={currentUser}
+          onClose={() => setShowCreateStoryModal(false)}
+          onSubmit={handleCreateStory}
+          isDark={isDark}
         />
       )}
 
@@ -304,6 +401,16 @@ export function App() {
           onClose={() => setShowDegreesModal(false)}
         />
       )}
+
+      {/* Account Switcher & Role Testing Modal */}
+      <AccountSwitcherModal
+        isOpen={showAccountSwitcher}
+        onClose={() => setShowAccountSwitcher(false)}
+        currentUser={currentUser}
+        allUsers={allUsers}
+        onSelectUser={handleSelectUser}
+        isDark={isDark}
+      />
     </div>
   );
 }

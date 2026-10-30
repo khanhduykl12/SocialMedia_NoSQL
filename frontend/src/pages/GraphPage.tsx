@@ -22,11 +22,11 @@ export const GraphPage: React.FC<Props> = ({
     <div className="max-w-6xl mx-auto py-6 px-4 space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-xl font-extrabold text-slate-100">
-            Khám phá Mạng lưới Xã hội Trực quan (Neo4j Graph Explorer)
+          <h2 className="text-xl font-extrabold text-[#1C1713] dark:text-slate-100 font-['Outfit']">
+            Sơ đồ mạng lưới kết nối bạn bè
           </h2>
-          <p className="text-xs text-slate-400 mt-1">
-            Mỗi quả cầu là một Người dùng hoặc Câu lạc bộ, các đường liên kết biểu thị mối quan hệ Bạn bè hoặc Thành viên.
+          <p className="text-xs text-[#5A4D3E] dark:text-slate-400 mt-1">
+            Mỗi nút đại diện cho một người bạn hoặc câu lạc bộ, các đường liên kết biểu thị mối quan hệ kết nối giữa các thành viên.
           </p>
         </div>
 

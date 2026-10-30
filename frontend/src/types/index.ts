@@ -94,3 +94,17 @@ export interface GraphEdge {
   to: string;
   label: string;
 }
+
+export interface Notification {
+  _id: string;
+  recipientId: string;
+  senderId: string;
+  senderName?: string;
+  senderAvatar?: string;
+  type: "FRIEND_REQUEST" | "FRIEND_ACCEPT" | "POST_LIKED" | "POST_COMMENT" | "GROUP_INVITE";
+  message: string;
+  link?: string;
+  isRead: boolean;
+  createdAt: string;
+}
+

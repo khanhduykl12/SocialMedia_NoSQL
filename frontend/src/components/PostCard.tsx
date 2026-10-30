@@ -9,11 +9,14 @@ import {
   Send
 } from "lucide-react";
 import { Post } from "../types";
+import { apiService } from "../services/api";
 
 interface Props {
   post: Post;
   currentUserId?: string;
+  currentUserRole?: string;
   onLike: (id: string) => void;
+  onDeletePost?: (id: string) => void;
   onAuthorClick?: (userId: string) => void;
   isDark: boolean;
 }
@@ -21,24 +24,35 @@ interface Props {
 export const PostCard: React.FC<Props> = ({
   post,
   currentUserId = "usr_101",
+  currentUserRole = "user",
   onLike,
+  onDeletePost,
   onAuthorClick,
   isDark
 }) => {
   const isLiked = post.likes?.includes(currentUserId);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [showComments, setShowComments] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
   const [commentInput, setCommentInput] = useState("");
   const [localComments, setLocalComments] = useState(post.comments || []);
 
-  const handleAddComment = (e: React.FormEvent) => {
+  const handleAddComment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!commentInput.trim()) return;
-    setLocalComments((prev) => [
-      ...prev,
-      { authorId: "usr_101", content: commentInput.trim(), createdAt: new Date().toISOString() }
-    ]);
+    const text = commentInput.trim();
     setCommentInput("");
+    const newCmt = {
+      authorId: currentUserId,
+      content: text,
+      createdAt: new Date().toISOString()
+    };
+    setLocalComments((prev) => [...prev, newCmt]);
+    try {
+      await apiService.addComment(post._id, text);
+    } catch (err) {
+      console.error("Lỗi gửi bình luận", err);
+    }
   };
 
   const [copied, setCopied] = useState(false);
@@ -75,22 +89,75 @@ export const PostCard: React.FC<Props> = ({
             />
           </div>
           <div>
-            <h4
-              onClick={() => onAuthorClick?.(post.authorId)}
-              className="font-extrabold text-sm tracking-tight text-[#1C1713] dark:text-[#FAF7F2] hover:underline cursor-pointer"
-              title="Xem trang cá nhân"
-            >
-              {post.authorName || "Sinh viên HUIT"}
-            </h4>
+            <div className="flex items-center space-x-1.5">
+              <h4
+                onClick={() => onAuthorClick?.(post.authorId)}
+                className="font-extrabold text-sm tracking-tight text-[#1C1713] dark:text-[#FAF7F2] hover:underline cursor-pointer"
+                title="Xem trang cá nhân"
+              >
+                {post.authorName || "Sinh viên HUIT"}
+              </h4>
+              {post.authorId === "usr_101" && (
+                <span className="text-[10px] px-1.5 py-0.2 rounded font-extrabold bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/40">
+                  Admin
+                </span>
+              )}
+            </div>
             <p className="text-xs text-[#5A4D3E] dark:text-[#C5B8A8] font-semibold">
               @{post.authorId || "huit_user"} • 4 giờ trước
             </p>
           </div>
         </div>
 
-        <button className="p-2 rounded-full hover:bg-[#786450]/10 text-[#5A4D3E] dark:text-[#C5B8A8] transition">
-          <MoreHorizontal className="w-5 h-5" />
-        </button>
+        {/* More Actions Dropdown */}
+        <div className="relative">
+          <button 
+            onClick={() => setShowMenu(!showMenu)}
+            className="p-2 rounded-full hover:bg-[#786450]/10 text-[#5A4D3E] dark:text-[#C5B8A8] transition cursor-pointer"
+          >
+            <MoreHorizontal className="w-5 h-5" />
+          </button>
+
+          {showMenu && (
+            <div 
+              className={`absolute right-0 top-10 w-52 rounded-2xl border shadow-xl z-20 py-1.5 overflow-hidden text-xs font-semibold ${
+                isDark ? "bg-[#1A1714] border-[#383127] text-white" : "bg-white border-[#E5DCD0] text-[#1C1713]"
+              }`}
+            >
+              {currentUserRole === "admin" ? (
+                <button
+                  onClick={() => {
+                    setShowMenu(false);
+                    onDeletePost?.(post._id);
+                  }}
+                  className="w-full text-left px-3.5 py-2.5 hover:bg-rose-500/10 text-rose-500 flex items-center space-x-2 cursor-pointer"
+                >
+                  <span>🗑️ Xóa bài viết (Quyền Admin)</span>
+                </button>
+              ) : post.authorId === currentUserId ? (
+                <button
+                  onClick={() => {
+                    setShowMenu(false);
+                    onDeletePost?.(post._id);
+                  }}
+                  className="w-full text-left px-3.5 py-2.5 hover:bg-rose-500/10 text-rose-500 flex items-center space-x-2 cursor-pointer"
+                >
+                  <span>🗑️ Xóa bài viết của bạn</span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    setShowMenu(false);
+                    alert("Đã gửi báo cáo bài viết tới Quản trị viên.");
+                  }}
+                  className="w-full text-left px-3.5 py-2.5 hover:bg-[#786450]/10 text-[#5A4D3E] dark:text-[#C5B8A8] cursor-pointer"
+                >
+                  🚩 Báo cáo bài viết
+                </button>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* 2. Text Content */}

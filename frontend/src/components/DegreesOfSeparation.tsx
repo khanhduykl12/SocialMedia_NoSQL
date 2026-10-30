@@ -38,10 +38,10 @@ export const DegreesOfSeparation: React.FC<Props> = ({ users, onClose }) => {
 
         <div className="flex items-center space-x-2.5 text-amber-400 mb-1">
           <Share2 className="w-5 h-5" />
-          <h3 className="font-bold text-lg text-slate-100">Đường Đi 6 Bậc (Degrees of Separation)</h3>
+          <h3 className="font-bold text-lg text-slate-100 font-['Outfit']">Dò tìm đường kết nối bạn bè</h3>
         </div>
         <p className="text-xs text-slate-400 mb-5 leading-relaxed">
-          Khai thác thuật toán <code className="text-amber-300">shortestPath()</code> trong Neo4j Cypher để tìm chuỗi mắt xích bạn bè ngắn nhất kết nối giữa 2 người bất kỳ.
+          Tìm kiếm chuỗi mắt xích bạn chung ngắn nhất giúp kết nối giữa hai thành viên bất kỳ trong mạng lưới.
         </p>
 
         {/* User Selectors */}
@@ -57,7 +57,7 @@ export const DegreesOfSeparation: React.FC<Props> = ({ users, onClose }) => {
             >
               {users.map((u) => (
                 <option key={u._id} value={u._id}>
-                  {u.profile.fullName} ({u._id})
+                  {u.profile.fullName}
                 </option>
               ))}
             </select>

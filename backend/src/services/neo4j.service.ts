@@ -10,20 +10,30 @@ export class Neo4jService {
 
     const session = driver.session();
     try {
-      const result = await session.run(query, params);
-      return result.records.map((record) => {
-        const obj: Record<string, any> = {};
-        record.keys.forEach((key) => {
-          const val = record.get(key);
-          // Format integers if returned from neo4j
-          if (val && typeof val === "object" && "low" in val && "high" in val) {
-            obj[String(key)] = val.low;
-          } else {
-            obj[String(key)] = val;
-          }
+      const statements = query
+        .split(";")
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0 && !s.startsWith("//"));
+
+      let lastRecords: any[] = [];
+      for (const stmt of statements) {
+        if (!stmt) continue;
+        const result = await session.run(stmt, params);
+        lastRecords = result.records.map((record) => {
+          const obj: Record<string, any> = {};
+          record.keys.forEach((key) => {
+            const val = record.get(key);
+            // Format integers if returned from neo4j
+            if (val && typeof val === "object" && "low" in val && "high" in val) {
+              obj[String(key)] = val.low;
+            } else {
+              obj[String(key)] = val;
+            }
+          });
+          return obj;
         });
-        return obj;
-      });
+      }
+      return lastRecords;
     } catch (error) {
       console.error("❌ Lỗi thực thi Cypher:", error);
       return [];
@@ -183,4 +193,26 @@ export class Neo4jService {
     `;
     return this.runCypher(cypher);
   }
+
+  // 9. Thêm bạn bè mới (2 chiều trong Neo4j)
+  public static async addFriend(userId: string, targetId: string) {
+    const cypher = `
+      MATCH (u1:User {id: $userId}), (u2:User {id: $targetId})
+      MERGE (u1)-[r1:FRIENDS_WITH]->(u2)
+      MERGE (u2)-[r2:FRIENDS_WITH]->(u1)
+      RETURN u1.id AS userId, u2.id AS targetId
+    `;
+    return this.runCypher(cypher, { userId, targetId });
+  }
+
+  // 10. Hủy kết bạn (Xóa quan hệ FRIENDS_WITH trong Neo4j)
+  public static async removeFriend(userId: string, targetId: string) {
+    const cypher = `
+      MATCH (u1:User {id: $userId})-[r:FRIENDS_WITH]-(u2:User {id: $targetId})
+      DELETE r
+      RETURN $userId AS userId, $targetId AS targetId
+    `;
+    return this.runCypher(cypher, { userId, targetId });
+  }
 }
+

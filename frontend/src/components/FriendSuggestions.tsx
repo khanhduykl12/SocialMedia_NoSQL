@@ -20,10 +20,10 @@ export const FriendSuggestions: React.FC<Props> = ({
   addedFriends
 }) => {
   const modes = [
-    { id: "hybrid", label: "Tổng hợp (Hybrid)" },
-    { id: "foaf", label: "Bạn chung (FoAF)" },
-    { id: "group", label: "Cùng CLB/Nhóm" },
-    { id: "jaccard", label: "Sở thích (Jaccard)" }
+    { id: "hybrid", label: "Phù hợp nhất" },
+    { id: "foaf", label: "Bạn chung" },
+    { id: "group", label: "Cùng CLB" },
+    { id: "jaccard", label: "Cùng sở thích" }
   ];
 
   return (
@@ -32,10 +32,10 @@ export const FriendSuggestions: React.FC<Props> = ({
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center space-x-2">
           <Sparkles className="w-4 h-4 text-sky-400" />
-          <h3 className="font-bold text-sm text-slate-100">Gợi ý kết bạn thông minh</h3>
+          <h3 className="font-bold text-sm text-slate-100">Gợi ý kết bạn</h3>
         </div>
         <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-sky-950 text-sky-400 border border-sky-800">
-          Neo4j Graph
+          Tương thích cao
         </span>
       </div>
 
@@ -59,7 +59,7 @@ export const FriendSuggestions: React.FC<Props> = ({
       {/* List of Suggestions */}
       {isLoading ? (
         <div className="py-8 text-center text-xs text-slate-500 animate-pulse">
-          Đang truy vấn đồ thị quan hệ Neo4j...
+          Đang tìm kiếm bạn bè phù hợp...
         </div>
       ) : recommendations.length === 0 ? (
         <div className="py-6 text-center text-xs text-slate-500">

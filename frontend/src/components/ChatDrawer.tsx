@@ -41,7 +41,7 @@ export const ChatDrawer: React.FC<Props> = ({ onClose, friends }) => {
       <div className="p-4 border-b border-slate-800 flex items-center justify-between">
         <div className="flex items-center space-x-2 text-emerald-400">
           <MessageCircle className="w-5 h-5" />
-          <h3 className="font-bold text-sm text-slate-100">Tin nhắn trực tiếp (MongoDB)</h3>
+          <h3 className="font-bold text-sm text-slate-100">Tin nhắn trực tiếp</h3>
         </div>
         <button
           onClick={onClose}

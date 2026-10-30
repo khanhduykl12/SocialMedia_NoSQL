@@ -11,6 +11,7 @@ interface Props {
   stories?: StoryGroup[];
   onOpenStory?: (group: StoryGroup) => void;
   onViewProfile?: (userId: string) => void;
+  onNavigateToFriends?: () => void;
   isDark: boolean;
 }
 
@@ -23,6 +24,7 @@ export const RightSidebar: React.FC<Props> = ({
   stories = [],
   onOpenStory,
   onViewProfile,
+  onNavigateToFriends,
   isDark
 }) => {
   // Sample default stories if none loaded yet
@@ -52,7 +54,7 @@ export const RightSidebar: React.FC<Props> = ({
           authorId: "usr_104",
           mediaUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=600",
           mediaType: "image",
-          caption: "Code xuyên đêm với thuật toán đồ thị Neo4j 💻",
+          caption: "Chạy deadline đồ án cùng hội bạn thân 💻",
           createdAt: new Date().toISOString()
         }
       ]
@@ -75,41 +77,66 @@ export const RightSidebar: React.FC<Props> = ({
             onClick={() => displayStories[0] && onOpenStory && onOpenStory(displayStories[0])}
             className="text-xs font-bold text-[#6B5844] dark:text-[#E5B574] cursor-pointer hover:underline"
           >
-            Watch all
+            Xem tất cả
           </span>
         </div>
 
         <div className="grid grid-cols-2 gap-2.5">
-          {displayStories.slice(0, 2).map((group) => (
-            <div
-              key={group.authorId}
-              onClick={() => onOpenStory && onOpenStory(group)}
-              className="group relative h-40 rounded-2xl overflow-hidden cursor-pointer shadow-xs border border-[#E5DCD0]/60 dark:border-[#383127]"
-            >
-              <img
-                src={group.stories[0]?.mediaUrl || group.authorAvatar}
-                alt={group.authorName}
-                className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
-              <div className="absolute top-2 left-2 w-6 h-6 rounded-full overflow-hidden ring-1 ring-white">
-                <img src={group.authorAvatar} alt="avatar" className="w-full h-full object-cover" />
+          {displayStories.slice(0, 2).map((group) => {
+            const firstStory = group.stories[0];
+            const isVideo = firstStory?.mediaType === "video" || firstStory?.mediaUrl?.endsWith(".mp4");
+
+            return (
+              <div
+                key={group.authorId}
+                onClick={() => onOpenStory && onOpenStory(group)}
+                className="group relative h-40 rounded-2xl overflow-hidden cursor-pointer shadow-xs border border-[#E5DCD0]/60 dark:border-[#383127]"
+              >
+                {isVideo ? (
+                  <video
+                    src={firstStory?.mediaUrl}
+                    muted
+                    loop
+                    autoPlay
+                    playsInline
+                    className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                  />
+                ) : (
+                  <img
+                    src={firstStory?.mediaUrl || group.authorAvatar}
+                    alt={group.authorName}
+                    className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                  />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
+                <div className="absolute top-2 left-2 w-6 h-6 rounded-full overflow-hidden ring-1 ring-white">
+                  <img src={group.authorAvatar} alt="avatar" className="w-full h-full object-cover" />
+                </div>
+                {isVideo && (
+                  <div className="absolute top-2 right-2 p-1 rounded-full bg-black/60 text-amber-300">
+                    <span className="text-[9px] font-bold">▶</span>
+                  </div>
+                )}
+                <div className="absolute bottom-2 left-2 right-2 flex items-center space-x-1.5">
+                  <span className="text-[11px] font-bold text-white truncate drop-shadow">{group.authorName}</span>
+                </div>
               </div>
-              <div className="absolute bottom-2 left-2 right-2 flex items-center space-x-1.5">
-                <span className="text-[11px] font-bold text-white truncate drop-shadow">{group.authorName}</span>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
-      {/* 2. SUGGESTIONS (GỢI Ý KẾT BẠN NEO4J) */}
+      {/* 2. SUGGESTIONS (GỢI Ý KẾT BẠN) */}
       <div>
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-extrabold text-base text-[#1C1713] dark:text-[#FAF7F2] tracking-tight font-['Outfit']">
             Suggestions
           </h3>
-          <span className="text-xs font-bold text-[#6B5844] dark:text-[#E5B574] cursor-pointer hover:underline">
+          <span 
+            onClick={onNavigateToFriends}
+            className="text-xs font-bold text-[#6B5844] dark:text-[#E5B574] cursor-pointer hover:underline"
+            title="Xem toàn bộ gợi ý kết bạn"
+          >
             See all
           </span>
         </div>
@@ -173,19 +200,19 @@ export const RightSidebar: React.FC<Props> = ({
             HUIT
           </div>
           <div
-            title="Dev Sài Gòn"
+            title="Cộng đồng Dev Sài Gòn"
             className="w-11 h-11 rounded-2xl bg-[#786450] text-white font-extrabold text-xs flex items-center justify-center cursor-pointer hover:scale-105 transition shadow-sm"
           >
             DEV
           </div>
           <div
-            title="NoSQL Research Group"
+            title="CLB Nhiếp ảnh & Media HUIT"
             className="w-11 h-11 rounded-2xl bg-[#E5B574] text-[#3D2C1A] font-extrabold text-xs flex items-center justify-center cursor-pointer hover:scale-105 transition shadow-sm"
           >
-            NoSQL
+            MEDIA
           </div>
           <div
-            title="Neo4j Graph Club"
+            title="Khám phá thêm câu lạc bộ"
             className="w-11 h-11 rounded-2xl border-2 border-dashed border-[#8C7D6D] text-[#8C7D6D] font-bold text-xs flex items-center justify-center cursor-pointer hover:border-[#786450] hover:text-[#786450] transition"
           >
             +

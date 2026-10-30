@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { CreatePostModal } from "../components/CreatePostModal";
 import { PostCard } from "../components/PostCard";
+import { StoryBar } from "../components/StoryBar";
 import { User, Post, StoryGroup } from "../types";
 
 interface Props {
@@ -8,8 +9,10 @@ interface Props {
   posts: Post[];
   stories: StoryGroup[];
   onLikePost: (id: string) => void;
+  onDeletePost?: (id: string) => void;
   onCreatePost: (content: string, mediaUrls?: string[]) => void;
   onOpenStory: (group: StoryGroup) => void;
+  onCreateStory?: () => void;
   onViewProfile?: (userId: string) => void;
   isDark: boolean;
 }
@@ -19,8 +22,10 @@ export const FeedPage: React.FC<Props> = ({
   posts,
   stories,
   onLikePost,
+  onDeletePost,
   onCreatePost,
   onOpenStory,
+  onCreateStory,
   onViewProfile,
   isDark
 }) => {
@@ -39,10 +44,10 @@ export const FeedPage: React.FC<Props> = ({
 
   return (
     <div className="w-full max-w-[620px] xl:max-w-[660px] mx-auto py-5 px-3 space-y-5">
-      {/* 1. Header: Timeline Title & Filter Tabs */}
+      {/* 1. Header: Tiêu đề Bảng tin & Bộ lọc */}
       <div className="flex items-center justify-between pb-1">
         <h1 className="text-2xl font-extrabold tracking-tight text-[#1C1713] dark:text-[#FAF7F2] font-['Outfit']">
-          Timeline
+          Bảng tin
         </h1>
 
         <div className="flex items-center space-x-6 text-xs font-semibold">
@@ -54,7 +59,7 @@ export const FeedPage: React.FC<Props> = ({
                 : "text-[#5A4D3E] dark:text-[#C5B8A8] hover:text-[#1C1713] dark:hover:text-[#FAF7F2]"
             }`}
           >
-            Recent
+            Mới nhất
           </button>
           <button
             onClick={() => setTimelineTab("foryou")}
@@ -64,7 +69,7 @@ export const FeedPage: React.FC<Props> = ({
                 : "text-[#5A4D3E] dark:text-[#C5B8A8] hover:text-[#1C1713] dark:hover:text-[#FAF7F2]"
             }`}
           >
-            For You
+            Dành cho bạn
           </button>
           <button
             onClick={() => setTimelineTab("following")}
@@ -74,12 +79,23 @@ export const FeedPage: React.FC<Props> = ({
                 : "text-[#5A4D3E] dark:text-[#C5B8A8] hover:text-[#1C1713] dark:hover:text-[#FAF7F2]"
             }`}
           >
-            Following
+            Bạn bè
           </button>
         </div>
       </div>
 
-      {/* 2. What's Happening Card */}
+      {/* 2. Dải Tin ngắn 24h (Stories Bar - MongoDB TTL Index) */}
+      <div className="pb-1">
+        <StoryBar
+          currentUser={currentUser}
+          stories={stories}
+          onOpenStory={onOpenStory}
+          onCreateStory={onCreateStory}
+          isDark={isDark}
+        />
+      </div>
+
+      {/* 3. What's Happening Card */}
       <CreatePostModal
         currentUser={currentUser}
         onSubmit={onCreatePost}
@@ -98,7 +114,9 @@ export const FeedPage: React.FC<Props> = ({
               key={post._id}
               post={post}
               currentUserId={currentUser?._id}
+              currentUserRole={currentUser?.role}
               onLike={onLikePost}
+              onDeletePost={onDeletePost}
               onAuthorClick={onViewProfile}
               isDark={isDark}
             />
